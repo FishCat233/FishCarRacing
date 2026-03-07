@@ -922,8 +922,10 @@ MonoBehaviour:
   visualModel: {fileID: 577768057}
   driftSquashScale: 0.8
   driftStretchScale: 1.2
-  tiltAngle: 15
-  tiltSpeed: 10
+  turnTiltAngle: 5
+  turnTiltSpeed: 5
+  driftTiltAngle: 15
+  driftTiltSpeed: 10
 --- !u!1 &1152745746
 GameObject:
   m_ObjectHideFlags: 0

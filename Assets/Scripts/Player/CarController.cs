@@ -44,8 +44,10 @@ namespace FishCarRacing.Player
         public Transform visualModel;
         public float driftSquashScale = 0.8f;
         public float driftStretchScale = 1.2f;
-        public float tiltAngle = 15f; // 漂移时倾斜的最大角度
-        public float tiltSpeed = 10f; // 倾斜变换的速度
+        public float turnTiltAngle = 15f; // 正常移动时倾斜的最大角度
+        public float turnTiltSpeed = 10f; // 正常移动时倾斜变换的速度
+        public float driftTiltAngle = 15f; // 漂移时倾斜的最大角度
+        public float driftTiltSpeed = 10f; // 倾斜变换的速度
 
 
         private void Start()
@@ -115,6 +117,11 @@ namespace FishCarRacing.Player
             //float turnAmount = turnInput * turnStrength * rb.velocity.magnitude / maxSpeed;
             float turnAmount = turnInput * turnStrength;
             transform.Rotate(0, turnAmount, 0);
+
+            // 视觉效果
+            float targetTilt = -turnInput * turnTiltAngle;
+            var targetRotation = Quaternion.Euler(0, 0, targetTilt);
+            visualModel.localRotation = Quaternion.Slerp(visualModel.localRotation, targetRotation, Time.fixedDeltaTime * turnTiltSpeed);
         }
 
         private void AlignWithGround()
@@ -176,9 +183,9 @@ namespace FishCarRacing.Player
             transform.Rotate(0, driftTurn, 0);
 
             // 视觉效果
-            float targetTilt = -driftInput * tiltAngle;
+            float targetTilt = -driftInput * driftTiltAngle;
             var targetRotation = Quaternion.Euler(0, 0, targetTilt);
-            visualModel.localRotation = Quaternion.Slerp(visualModel.localRotation, targetRotation, Time.fixedDeltaTime * tiltSpeed);
+            visualModel.localRotation = Quaternion.Slerp(visualModel.localRotation, targetRotation, Time.fixedDeltaTime * driftTiltSpeed);
 
             var forwardVelocity = transform.forward * localVelocity.z;
             var sidewayVelocity = driftSlideFactor * localVelocity.x * transform.right;
