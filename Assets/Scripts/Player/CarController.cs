@@ -24,11 +24,13 @@ namespace FishCarRacing.Player
         public float driftTurnStrength = 8f;
         public float driftSlideFactor = 0.3f;
         public float minDriftTime = 0.5f;
+        public float driftCooldown = 0.5f;
         public float boostDuration = 1.0f;
         public float boostForce = 15f;
 
         private bool isDrifting = false;
         private float driftStartTime = 0f;
+        private float nextDriftCanStartTime = 0f;
         private float boostTimeRemaining = 0f;
         private float driftInput = 1f;
 
@@ -42,24 +44,47 @@ namespace FishCarRacing.Player
 
         [Header("视觉效果")]
         public Transform visualModel;
+        public Transform visualModelBody;
+        public Transform visualWheelFR;
+        public Transform visualWheelBR;
+        public Transform visualWheelFL;
+        public Transform visualWheelBL;
+
+        public float turnWheelAngle = 30f;
+        public float driftWheelAngle = 60f;
+
         public float driftSquashScale = 0.8f;
         public float driftStretchScale = 1.2f;
+
         public float turnTiltAngle = 15f; // 正常移动时倾斜的最大角度
         public float turnTiltSpeed = 10f; // 正常移动时倾斜变换的速度
         public float driftTiltAngle = 15f; // 漂移时倾斜的最大角度
         public float driftTiltSpeed = 10f; // 倾斜变换的速度
 
+        private Quaternion visualModelInitialRotation;
+        private Vector3 visualModelInitialScale;
+
 
         private void Start()
         {
             if (rb == null) rb = GetComponent<Rigidbody>();
+
+            if (visualModelBody != null)
+            {
+                visualModelInitialRotation = visualModelBody.localRotation;
+                visualModelInitialScale = visualModelBody.localScale;
+            }
         }
 
         private void Update()
         {
             HandleInput();
 
-            if (Keyboard.current.shiftKey.wasPressedThisFrame && isGrounded && rb.velocity.magnitude > 0f && !isDrifting)
+            if (Keyboard.current.shiftKey.wasPressedThisFrame &&
+                isGrounded &&
+                Time.time >= nextDriftCanStartTime &&
+                rb.velocity.magnitude > 0f &&
+                !isDrifting)
             {
                 StartDrift();
             }
@@ -101,10 +126,14 @@ namespace FishCarRacing.Player
                 rb.AddForce(Physics.gravity * 2f, ForceMode.Acceleration);
             }
 
+            UpdateWheel();
+
             LimitSpeed();
         }
 
         #region BaseMove
+
+
 
         private void Accelerate()
         {
@@ -120,8 +149,8 @@ namespace FishCarRacing.Player
 
             // 视觉效果
             float targetTilt = -turnInput * turnTiltAngle;
-            var targetRotation = Quaternion.Euler(0, 0, targetTilt);
-            visualModel.localRotation = Quaternion.Slerp(visualModel.localRotation, targetRotation, Time.fixedDeltaTime * turnTiltSpeed);
+            var targetRotation = visualModelInitialRotation * Quaternion.Euler(0, 0, targetTilt);
+            visualModelBody.localRotation = Quaternion.Slerp(visualModelBody.localRotation, targetRotation, Time.fixedDeltaTime * turnTiltSpeed);
         }
 
         private void AlignWithGround()
@@ -164,8 +193,10 @@ namespace FishCarRacing.Player
             isDrifting = false;
             float driftDuration = Time.time - driftStartTime;
 
-            visualModel.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
-            visualModel.DOLocalRotate(Vector3.zero, 0.4f).SetEase(Ease.OutElastic);
+            nextDriftCanStartTime = Time.time + driftCooldown;
+
+            visualModelBody.DOScale(visualModelInitialScale, 0.3f).SetEase(Ease.OutBack);
+            visualModelBody.DOLocalRotate(visualModelInitialRotation.eulerAngles, 0.4f).SetEase(Ease.OutElastic);
 
             if (driftDuration >= minDriftTime)
             {
@@ -184,8 +215,8 @@ namespace FishCarRacing.Player
 
             // 视觉效果
             float targetTilt = -driftInput * driftTiltAngle;
-            var targetRotation = Quaternion.Euler(0, 0, targetTilt);
-            visualModel.localRotation = Quaternion.Slerp(visualModel.localRotation, targetRotation, Time.fixedDeltaTime * driftTiltSpeed);
+            var targetRotation = visualModelInitialRotation * Quaternion.Euler(0, 0, targetTilt);
+            visualModelBody.localRotation = Quaternion.Slerp(visualModelBody.localRotation, targetRotation, Time.fixedDeltaTime * driftTiltSpeed);
 
             var forwardVelocity = transform.forward * localVelocity.z;
             var sidewayVelocity = driftSlideFactor * localVelocity.x * transform.right;
@@ -207,6 +238,38 @@ namespace FishCarRacing.Player
 
         #endregion
 
+        #region Visual
+
+        private void UpdateWheel()
+        {
+            float targetAngle = (isDrifting ? driftWheelAngle : turnWheelAngle) * turnInput;
+
+            var localVelocity = transform.InverseTransformDirection(rb.velocity);
+
+            float rollSpeed = localVelocity.z * Time.fixedDeltaTime * 360f;
+
+            RotateWheel(visualWheelFL, targetAngle, rollSpeed);
+            RotateWheel(visualWheelFR, targetAngle, rollSpeed);
+
+            RotateWheel(visualWheelBL, 0, rollSpeed);
+            RotateWheel(visualWheelBR, 0, rollSpeed);
+        }
+
+        private void RotateWheel(Transform wheel, float steeringAngle, float rollSpeed)
+        {
+            if (wheel == null) return;
+
+            // 滚动：围绕轮子的轴（通常是 X 轴）旋转
+            wheel.Rotate(Vector3.right, rollSpeed, Space.Self);
+
+            // 转向：修改局部旋转的 Y 轴
+            // 注意：为了不让 Rotate 和 localRotation 冲突，
+            // 我们只手动设置转向角度，滚动则用 Rotate 叠加
+            Vector3 currentLocalEuler = wheel.localEulerAngles;
+            wheel.localRotation = Quaternion.Euler(currentLocalEuler.x, steeringAngle, 0);
+        }
+
+        #endregion
 
         #region Handle
 
