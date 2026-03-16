@@ -312,7 +312,7 @@ namespace FishCarRacing.Player
         {
             float targetAngle = (isDrifting ? driftWheelAngle : turnWheelAngle) * turnInput;
             var localVelocity = transform.InverseTransformDirection(rb.velocity);
-            float rollSpeed = localVelocity.z * Time.fixedDeltaTime * 360f;
+            float rollSpeed = localVelocity.z * Time.deltaTime * 360f;
 
             RotateWheel(wheelMeshes[0], targetAngle, rollSpeed);
             RotateWheel(wheelMeshes[1], targetAngle, rollSpeed);
