@@ -16,7 +16,7 @@ namespace FishCarRacing.Player
         public float maxSpeed = 30f;
         public float acceleration = 20f;
         public float turnStrength = 5f;
-
+        public float SpeedKmh { get; private set; }
         private float moveInput;
         private float turnInput;
 
@@ -63,6 +63,11 @@ namespace FishCarRacing.Player
 
         private Quaternion visualModelInitialRotation;
         private Vector3 visualModelInitialScale;
+
+        // 瞬时爆发
+        private float speedBurstTimeRemaining;
+        private float speedBurstAddMaxSpeed;
+        private float speedBurstAddAcceleration;
 
 
         private void Start()
@@ -129,6 +134,9 @@ namespace FishCarRacing.Player
             UpdateWheel();
 
             LimitSpeed();
+
+            UpdateSpeedBurstTimer();
+            UpdateSpeedData();
         }
 
         #region BaseMove
@@ -309,6 +317,48 @@ namespace FishCarRacing.Player
 
         #endregion
 
+        #region Tools
+        
+
+        private void UpdateSpeedData()
+        {
+            SpeedKmh = rb.velocity.magnitude * 3.6f;
+        }
+        
+        public void ApplySpeedBurst(float addMaxSpeed, float addAcceleration, float duration)
+        {
+            if (speedBurstTimeRemaining > 0f)
+            {
+                maxSpeed -= speedBurstAddMaxSpeed;
+                acceleration -= speedBurstAddAcceleration;
+            }
+
+            speedBurstAddMaxSpeed = addMaxSpeed;
+            speedBurstAddAcceleration = addAcceleration;
+            speedBurstTimeRemaining = duration;
+
+            maxSpeed += speedBurstAddMaxSpeed;
+            acceleration += speedBurstAddAcceleration;
+        }
+
+        private void UpdateSpeedBurstTimer()
+        {
+            if (speedBurstTimeRemaining <= 0f) return;
+
+            speedBurstTimeRemaining -= Time.fixedDeltaTime;
+            if (speedBurstTimeRemaining > 0f) return;
+
+            // 到时间恢复
+            maxSpeed -= speedBurstAddMaxSpeed;
+            acceleration -= speedBurstAddAcceleration;
+
+            speedBurstAddMaxSpeed = 0f;
+            speedBurstAddAcceleration = 0f;
+            speedBurstTimeRemaining = 0f;
+        }
+
+        #endregion
+
         #region DEBUG
 
         private void OnDrawGizmosSelected()
@@ -323,4 +373,3 @@ namespace FishCarRacing.Player
         #endregion
     }
 }
-
