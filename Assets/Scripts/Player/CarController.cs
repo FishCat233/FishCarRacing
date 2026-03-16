@@ -16,7 +16,7 @@ namespace FishCarRacing.Player
         public float maxSpeed = 30f;
         public float acceleration = 20f;
         public float turnStrength = 5f;
-
+        public float SpeedKmh { get; private set; }
         private float moveInput;
         private float turnInput;
 
@@ -129,6 +129,8 @@ namespace FishCarRacing.Player
             UpdateWheel();
 
             LimitSpeed();
+            
+            UpdateSpeedData();
         }
 
         #region BaseMove
@@ -309,6 +311,16 @@ namespace FishCarRacing.Player
 
         #endregion
 
+        #region Tools
+        
+
+        private void UpdateSpeedData()
+        {
+            SpeedKmh = rb.velocity.magnitude * 3.6f;
+        }
+
+        #endregion
+
         #region DEBUG
 
         private void OnDrawGizmosSelected()
@@ -323,4 +335,3 @@ namespace FishCarRacing.Player
         #endregion
     }
 }
-
