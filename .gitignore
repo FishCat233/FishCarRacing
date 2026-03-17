@@ -1,7 +1,8 @@
 # .gitignore for this Project
-/Assets/Arts/**/*.png
-/Assets/Arts/**/*.jpg
-/Assets/Arts/**/*.fbx
+# lfs instead of.
+# /Assets/Arts/**/*.png
+# /Assets/Arts/**/*.jpg
+# /Assets/Arts/**/*.fbx
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #

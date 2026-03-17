@@ -1,0 +1,56 @@
+## -----------------------------------------------------------------------
+## 1. 换行符处理 (防止 Windows 和 Mac 同步时产生多余的冲突)
+## -----------------------------------------------------------------------
+* text=auto
+
+## -----------------------------------------------------------------------
+## 2. Unity 核心文本文件 (必须进 Git 仓库，确保可合并)
+## -----------------------------------------------------------------------
+*.cs diff=csharp text
+*.unity text
+*.prefab text
+*.asset text
+*.mat text
+*.anim text
+*.controller text
+*.overrideController text
+*.physicMaterial text
+*.physicsMaterial2D text
+*.meta text
+*.asmdef text
+*.guiskin text
+*.fontsettings text
+
+## -----------------------------------------------------------------------
+## 3. Git LFS 追踪名单 (二进制大文件，走 LFS 额度)
+## -----------------------------------------------------------------------
+
+# 图像资源
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.tga filter=lfs diff=lfs merge=lfs -text
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.exr filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+
+# 音频资源
+*.wav filter=lfs diff=lfs merge=lfs -text
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.ogg filter=lfs diff=lfs merge=lfs -text
+
+# 模型与 3D 资产
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.obj filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+
+# 字体与视频
+*.ttf filter=lfs diff=lfs merge=lfs -text
+*.otf filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+
+# 压缩包与大型二进制
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.rar filter=lfs diff=lfs merge=lfs -text
+*.7z filter=lfs diff=lfs merge=lfs -text

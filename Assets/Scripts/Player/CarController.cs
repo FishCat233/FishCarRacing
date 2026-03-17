@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.InputSystem;
+﻿using UnityEngine.InputSystem;
 using UnityEngine;
 using DG.Tweening;
 
@@ -12,13 +10,33 @@ namespace FishCarRacing.Player
         [Header("引用")]
         public Rigidbody rb;
 
+        [Header("地面检测")]
+        public Transform groundCheckPoint; // 车底的检测点
+        public float groundCheckLength = 1.0f;
+        public LayerMask groundLayer; // 地面层
+        private bool isGrounded;
+        private Vector3 groundNormal; // 地面法线
+
         [Header("移动性能")]
         public float maxSpeed = 30f;
+        public float maxReverseSpeed = 12f;
         public float acceleration = 20f;
         public float turnStrength = 5f;
-        public float SpeedKmh { get; private set; }
-        private float moveInput;
-        private float turnInput;
+
+        
+
+        [Header("直行")]
+        [Tooltip("向前移动的响应速度")]
+        public float forwardResponse = 10f;
+
+        [Tooltip("减速速度")]
+        public float brakeDecel = 25f;
+
+        [Tooltip("侧滑抑制")]
+        public float sideFriction = 10f;
+
+        [Tooltip("转向强度的缩放  1=不缩放")]
+        public float turnBySpeedFactor = 0.6f;
 
         [Header("漂移性能")]
         public float driftTurnStrength = 8f;
@@ -26,7 +44,36 @@ namespace FishCarRacing.Player
         public float minDriftTime = 0.5f;
         public float driftCooldown = 0.5f;
         public float boostDuration = 1.0f;
-        public float boostForce = 15f;
+
+        [Header("漂移属性")]
+        [Tooltip("向前漂移的响应速度")]
+        public float driftForwardResponse = 12f;
+
+        [Tooltip("侧向漂移的响应速度")]
+        public float driftSideResponse = 18f;
+
+        [Tooltip("向前漂移的速度加成")]
+        public float boostSpeedBonus = 10f;
+
+        [Tooltip("漂移的衰减速度")]
+        public float boostDecay = 8f;
+
+        [Header("视觉效果")]
+        public Transform visualModel;
+        public Transform visualModelBody;
+        public Transform[] wheelMeshes;
+        public WheelCollider[] wheelColliders;
+
+        public float turnWheelAngle = 30f;
+        public float driftWheelAngle = 60f;
+
+        public float turnTiltAngle = 15f;
+        public float turnTiltSpeed = 10f;
+        public float driftTiltAngle = 15f;
+        public float driftTiltSpeed = 10f;
+
+        private float moveInput;
+        private float turnInput;
 
         private bool isDrifting = false;
         private float driftStartTime = 0f;
@@ -34,32 +81,11 @@ namespace FishCarRacing.Player
         private float boostTimeRemaining = 0f;
         private float driftInput = 1f;
 
-        [Header("地面检测")]
-        // 检测和地面的角度
-        public Transform groundCheckPoint; // 车底的检测点
-        public float groundCheckLength = 1.0f;
-        public LayerMask groundLayer; // 地面层
-        private bool isGrounded;
-        private Vector3 groundNormal; // 地面法线
-
-        [Header("视觉效果")]
-        public Transform visualModel;
-        public Transform visualModelBody;
-        public Transform visualWheelFR;
-        public Transform visualWheelBR;
-        public Transform visualWheelFL;
-        public Transform visualWheelBL;
-
-        public float turnWheelAngle = 30f;
-        public float driftWheelAngle = 60f;
-
-        public float driftSquashScale = 0.8f;
-        public float driftStretchScale = 1.2f;
-
-        public float turnTiltAngle = 15f; // 正常移动时倾斜的最大角度
-        public float turnTiltSpeed = 10f; // 正常移动时倾斜变换的速度
-        public float driftTiltAngle = 15f; // 漂移时倾斜的最大角度
-        public float driftTiltSpeed = 10f; // 倾斜变换的速度
+        private float boostSpeedCurrent = 0f;
+        
+        public float SpeedKmh { get; private set; }
+        private float moveInput;
+        private float turnInput;
 
         private Quaternion visualModelInitialRotation;
         private Vector3 visualModelInitialScale;
@@ -88,7 +114,7 @@ namespace FishCarRacing.Player
             if (Keyboard.current.shiftKey.wasPressedThisFrame &&
                 isGrounded &&
                 Time.time >= nextDriftCanStartTime &&
-                rb.velocity.magnitude > 0f &&
+                rb.velocity.magnitude > 0.1f &&
                 !isDrifting)
             {
                 StartDrift();
@@ -108,10 +134,15 @@ namespace FishCarRacing.Player
             {
                 AlignWithGround();
 
+                // boost 用速度重构
                 if (boostTimeRemaining > 0)
                 {
-                    rb.AddForce(transform.forward * boostForce, ForceMode.Acceleration);
                     boostTimeRemaining -= Time.fixedDeltaTime;
+                    boostSpeedCurrent = boostSpeedBonus;
+                }
+                else
+                {
+                    boostSpeedCurrent = Mathf.MoveTowards(boostSpeedCurrent, 0f, boostDecay * Time.fixedDeltaTime);
                 }
 
                 if (isDrifting)
@@ -123,37 +154,72 @@ namespace FishCarRacing.Player
                     Accelerate();
                     Turn();
                 }
-
             }
             else
             {
                 AlignWithPlane();
                 rb.AddForce(Physics.gravity * 2f, ForceMode.Acceleration);
+                
+                // 空中不驱动
+                wheelColliders[2].motorTorque = 0f;
+                wheelColliders[3].motorTorque = 0f;
+                
             }
-
-            UpdateWheel();
 
             LimitSpeed();
 
             UpdateSpeedBurstTimer();
+            
             UpdateSpeedData();
+        }
+
+        private void LateUpdate()
+        {
+            int count = Mathf.Min(wheelMeshes.Length, wheelColliders.Length);
+            for (int i = 0; i < count; i++)
+            {
+                wheelColliders[i].GetWorldPose(out Vector3 pos, out Quaternion _);
+                if (wheelMeshes[i] != null) wheelMeshes[i].position = pos;
+            }
+            UpdateWheel();
         }
 
         #region BaseMove
 
-
-
         private void Accelerate()
         {
-            var force = transform.forward * moveInput * acceleration;
-            rb.AddForce(force, ForceMode.Acceleration);
+            Vector3 local = transform.InverseTransformDirection(rb.velocity);
+
+            float currentForward = local.z;
+            float targetForward;
+
+            if (Mathf.Abs(moveInput) > 0.01f)
+            {
+                float desired = moveInput > 0f ? maxSpeed : -maxReverseSpeed;
+                float maxDelta = acceleration * Time.fixedDeltaTime;
+                targetForward = Mathf.MoveTowards(currentForward, desired, maxDelta * forwardResponse);
+            }
+            else
+            {
+                targetForward = Mathf.MoveTowards(currentForward, 0f, brakeDecel * Time.fixedDeltaTime);
+            }
+
+            // 侧向速度
+            float targetSide = Mathf.MoveTowards(local.x, 0f, sideFriction * Time.fixedDeltaTime);
+
+            Vector3 newLocal = new Vector3(targetSide, 0f, targetForward);
+            Vector3 newWorld = transform.TransformDirection(newLocal);
+            newWorld.y = rb.velocity.y;
+            rb.velocity = newWorld;
         }
 
         private void Turn()
         {
-            //float turnAmount = turnInput * turnStrength * rb.velocity.magnitude / maxSpeed;
-            float turnAmount = turnInput * turnStrength;
-            transform.Rotate(0, turnAmount, 0);
+            float speed01 = Mathf.Clamp01(rb.velocity.magnitude / Mathf.Max(0.01f, maxSpeed));
+            float speedScale = Mathf.Lerp(0.3f, 1f, speed01);
+
+            float turnAmount = turnInput * turnStrength * Mathf.Lerp(1f, speedScale, turnBySpeedFactor);
+            transform.Rotate(0f, turnAmount, 0f);
 
             // 视觉效果
             float targetTilt = -turnInput * turnTiltAngle;
@@ -214,10 +280,9 @@ namespace FishCarRacing.Player
 
         private void Drifting()
         {
+            var local = transform.InverseTransformDirection(rb.velocity);
 
-            // 漂移有点问题
-            var localVelocity = transform.InverseTransformDirection(rb.velocity);
-
+            // 漂移
             float driftTurn = driftInput * driftTurnStrength;
             transform.Rotate(0, driftTurn, 0);
 
@@ -225,24 +290,34 @@ namespace FishCarRacing.Player
             float targetTilt = -driftInput * driftTiltAngle;
             var targetRotation = visualModelInitialRotation * Quaternion.Euler(0, 0, targetTilt);
             visualModelBody.localRotation = Quaternion.Slerp(visualModelBody.localRotation, targetRotation, Time.fixedDeltaTime * driftTiltSpeed);
+            
 
-            var forwardVelocity = transform.forward * localVelocity.z;
-            var sidewayVelocity = driftSlideFactor * localVelocity.x * transform.right;
-            var verticalSpeed = rb.velocity.y;
+            // 前向
+            float desiredForward = local.z;
+            if (Mathf.Abs(moveInput) > 0.01f)
+            {
+                float desired = moveInput > 0f ? maxSpeed : -maxReverseSpeed;
+                desiredForward = Mathf.MoveTowards(local.z, desired, acceleration * Time.fixedDeltaTime);
+            }
+            else
+            {
+                desiredForward = Mathf.MoveTowards(local.z, 0f, brakeDecel * Time.fixedDeltaTime);
+            }
 
-            float currentAccelerate = moveInput * acceleration;
+            desiredForward = Mathf.Clamp(desiredForward + boostSpeedCurrent, -maxReverseSpeed, maxSpeed);
+            float targetForward = Mathf.MoveTowards(local.z, desiredForward, driftForwardResponse * Time.fixedDeltaTime);
 
-            var targetVelocity = forwardVelocity + sidewayVelocity + currentAccelerate * Time.fixedDeltaTime * transform.forward;
-            targetVelocity.y = verticalSpeed;
+            // 侧向
+            float desiredSide = local.x * driftSlideFactor;
+            float targetSide = Mathf.Lerp(local.x, desiredSide, 1f - Mathf.Exp(-driftSideResponse * Time.fixedDeltaTime));
+            
+            float y = rb.velocity.y;
 
-            rb.velocity = targetVelocity;
-
-            //if (Mathf.Abs(driftInput) > 0.1f)
-            //{
-            //    rb.AddForce(transform.right * turnInput * 5f, ForceMode.Acceleration);
-            //}
+            Vector3 newLocal = new Vector3(targetSide, 0f, targetForward);
+            Vector3 newWorld = transform.TransformDirection(newLocal);
+            newWorld.y = y;
+            rb.velocity = newWorld;
         }
-
 
         #endregion
 
@@ -251,30 +326,23 @@ namespace FishCarRacing.Player
         private void UpdateWheel()
         {
             float targetAngle = (isDrifting ? driftWheelAngle : turnWheelAngle) * turnInput;
-
             var localVelocity = transform.InverseTransformDirection(rb.velocity);
+            float rollSpeed = localVelocity.z * Time.deltaTime * 360f;
 
-            float rollSpeed = localVelocity.z * Time.fixedDeltaTime * 360f;
-
-            RotateWheel(visualWheelFL, targetAngle, rollSpeed);
-            RotateWheel(visualWheelFR, targetAngle, rollSpeed);
-
-            RotateWheel(visualWheelBL, 0, rollSpeed);
-            RotateWheel(visualWheelBR, 0, rollSpeed);
+            RotateWheel(wheelMeshes[0], targetAngle, rollSpeed);
+            RotateWheel(wheelMeshes[1], targetAngle, rollSpeed);
+            RotateWheel(wheelMeshes[2], 0f, rollSpeed);
+            RotateWheel(wheelMeshes[3], 0f, rollSpeed);
         }
 
         private void RotateWheel(Transform wheel, float steeringAngle, float rollSpeed)
         {
             if (wheel == null) return;
 
-            // 滚动：围绕轮子的轴（通常是 X 轴）旋转
             wheel.Rotate(Vector3.right, rollSpeed, Space.Self);
 
-            // 转向：修改局部旋转的 Y 轴
-            // 注意：为了不让 Rotate 和 localRotation 冲突，
-            // 我们只手动设置转向角度，滚动则用 Rotate 叠加
             Vector3 currentLocalEuler = wheel.localEulerAngles;
-            wheel.localRotation = Quaternion.Euler(currentLocalEuler.x, steeringAngle, 0);
+            wheel.localRotation = Quaternion.Euler(currentLocalEuler.x, steeringAngle, 0f);
         }
 
         #endregion
@@ -283,7 +351,8 @@ namespace FishCarRacing.Player
 
         private void HandleGroundCheck()
         {
-            // 向下发射射线检测地面存在以及地面的法线
+            isGrounded = false;
+            groundNormal = Vector3.up;
             RaycastHit hit;
             if (Physics.Raycast(groundCheckPoint.position, -transform.up, out hit, groundCheckLength, groundLayer))
             {
@@ -296,7 +365,6 @@ namespace FishCarRacing.Player
                 groundNormal = Vector3.up;
             }
         }
-
 
         private void HandleInput()
         {
@@ -363,11 +431,18 @@ namespace FishCarRacing.Player
 
         private void OnDrawGizmosSelected()
         {
-            if (groundCheckPoint != null)
-            {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(groundCheckPoint.position, groundCheckPoint.position - transform.up * groundCheckLength);
-            }
+
+            bool hitGround = Physics.Raycast(
+                groundCheckPoint.position,
+                -transform.up,
+                groundCheckLength,
+                groundLayer,
+                QueryTriggerInteraction.Ignore);
+
+            Gizmos.color = hitGround ? Color.red : Color.yellow;
+            Gizmos.DrawLine(
+                groundCheckPoint.position,
+                groundCheckPoint.position - transform.up * groundCheckLength);
         }
 
         #endregion
