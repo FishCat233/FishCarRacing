@@ -22,9 +22,7 @@ namespace FishCarRacing.Player
         public float maxReverseSpeed = 12f;
         public float acceleration = 20f;
         public float turnStrength = 5f;
-
         
-
         [Header("直行")]
         [Tooltip("向前移动的响应速度")]
         public float forwardResponse = 10f;
@@ -71,9 +69,6 @@ namespace FishCarRacing.Player
         public float turnTiltSpeed = 10f;
         public float driftTiltAngle = 15f;
         public float driftTiltSpeed = 10f;
-
-        private float moveInput;
-        private float turnInput;
 
         private bool isDrifting = false;
         private float driftStartTime = 0f;
