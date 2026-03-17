@@ -22,6 +22,7 @@ namespace FishCarRacing.Player
         public float maxReverseSpeed = 12f;
         public float acceleration = 20f;
         public float turnStrength = 5f;
+        
 
         [Header("直行")]
         [Tooltip("向前移动的响应速度")]
@@ -80,6 +81,10 @@ namespace FishCarRacing.Player
         private float driftInput = 1f;
 
         private float boostSpeedCurrent = 0f;
+        
+        public float SpeedKmh { get; private set; }
+        private float moveInput;
+        private float turnInput;
 
         private Quaternion visualModelInitialRotation;
         private Vector3 visualModelInitialScale;
@@ -156,6 +161,8 @@ namespace FishCarRacing.Player
             }
 
             LimitSpeed();
+            
+            UpdateSpeedData();
         }
 
         private void LateUpdate()
@@ -366,6 +373,16 @@ namespace FishCarRacing.Player
             else turnInput = 0f;
 
             driftInput = turnInput != 0f ? turnInput : driftInput;
+        }
+
+        #endregion
+
+        #region Tools
+        
+
+        private void UpdateSpeedData()
+        {
+            SpeedKmh = rb.velocity.magnitude * 3.6f;
         }
 
         #endregion
