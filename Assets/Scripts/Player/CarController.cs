@@ -22,6 +22,7 @@ namespace FishCarRacing.Player
         public float maxReverseSpeed = 12f;
         public float acceleration = 20f;
         public float turnStrength = 5f;
+
         
 
         [Header("直行")]
@@ -88,7 +89,12 @@ namespace FishCarRacing.Player
 
         private Quaternion visualModelInitialRotation;
         private Vector3 visualModelInitialScale;
-        
+
+        // 瞬时爆发
+        private float speedBurstTimeRemaining;
+        private float speedBurstAddMaxSpeed;
+        private float speedBurstAddAcceleration;
+
 
         private void Start()
         {
@@ -161,6 +167,8 @@ namespace FishCarRacing.Player
             }
 
             LimitSpeed();
+
+            UpdateSpeedBurstTimer();
             
             UpdateSpeedData();
         }
@@ -383,6 +391,38 @@ namespace FishCarRacing.Player
         private void UpdateSpeedData()
         {
             SpeedKmh = rb.velocity.magnitude * 3.6f;
+        }
+        
+        public void ApplySpeedBurst(float addMaxSpeed, float addAcceleration, float duration)
+        {
+            if (speedBurstTimeRemaining > 0f)
+            {
+                maxSpeed -= speedBurstAddMaxSpeed;
+                acceleration -= speedBurstAddAcceleration;
+            }
+
+            speedBurstAddMaxSpeed = addMaxSpeed;
+            speedBurstAddAcceleration = addAcceleration;
+            speedBurstTimeRemaining = duration;
+
+            maxSpeed += speedBurstAddMaxSpeed;
+            acceleration += speedBurstAddAcceleration;
+        }
+
+        private void UpdateSpeedBurstTimer()
+        {
+            if (speedBurstTimeRemaining <= 0f) return;
+
+            speedBurstTimeRemaining -= Time.fixedDeltaTime;
+            if (speedBurstTimeRemaining > 0f) return;
+
+            // 到时间恢复
+            maxSpeed -= speedBurstAddMaxSpeed;
+            acceleration -= speedBurstAddAcceleration;
+
+            speedBurstAddMaxSpeed = 0f;
+            speedBurstAddAcceleration = 0f;
+            speedBurstTimeRemaining = 0f;
         }
 
         #endregion
