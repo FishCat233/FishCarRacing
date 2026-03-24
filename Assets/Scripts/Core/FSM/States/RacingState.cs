@@ -18,6 +18,7 @@ namespace FSM.States
         {
             _raceManager.ResetStateTimer();
             _raceManager.ResetRaceTimer();
+            _raceManager.SetAllPlayerInputEnabled(true);
             Debug.Log("[FSM] Enter Racing: unlock control and start race timer.");
         }
 

@@ -4,7 +4,7 @@ using DG.Tweening;
 
 namespace FishCarRacing.Player
 {
-    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(Rigidbody), typeof(CarInput))]
     public class CarController : MonoBehaviour
     {
         [Header("引用")]
@@ -91,14 +91,31 @@ namespace FishCarRacing.Player
         private float speedBurstAddMaxSpeed;
         private float speedBurstAddAcceleration;
 
+        public bool CanInput => carInput != null && carInput.CanInput;
+
+        public void SetInputEnabled(bool enabled)
+        {
+            if (carInput == null) return;
+            carInput.SetCanInput(enabled);
+
+            if (!enabled && isDrifting)
+            {
+                EndDrift();
+            }
+        }
+
+        private void Awake()
+        {
+            if (carInput == null)
+            {
+                carInput = GetComponent<CarInput>();
+            }
+        }
+
 
         private void Start()
         {
             if (rb == null) rb = GetComponent<Rigidbody>();
-            if (carInput == null)
-            {
-                carInput = new CarInput();
-            }
 
             if (visualModelBody != null)
             {
@@ -109,7 +126,12 @@ namespace FishCarRacing.Player
 
         private void Update()
         {
-            if(carInput.CanInput) carInput.HandleInput();
+            carInput.HandleInput();
+
+            if (!carInput.CanInput)
+            {
+                return;
+            }
 
             if (Keyboard.current.shiftKey.wasPressedThisFrame &&
                 isGrounded &&

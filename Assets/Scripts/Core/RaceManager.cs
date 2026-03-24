@@ -1,5 +1,6 @@
 using FSM.Core;
 using FSM.States;
+using FishCarRacing.Player;
 using Tools;
 using UnityEngine;
 
@@ -70,6 +71,15 @@ public class RaceManager : Singleton<RaceManager>
         }
 
         return _stateMachine.ChangeState(targetState);
+    }
+
+    public void SetAllPlayerInputEnabled(bool enabled)
+    {
+        var players = FindObjectsOfType<CarController>();
+        foreach (var player in players)
+        {
+            player.SetInputEnabled(enabled);
+        }
     }
 
     private void InitializeStateMachine()
