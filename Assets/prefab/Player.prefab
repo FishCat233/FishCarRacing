@@ -333,6 +333,7 @@ GameObject:
   - component: {fileID: 5581716486091483590}
   - component: {fileID: 1505841177870221726}
   - component: {fileID: 6873820345986198965}
+  - component: {fileID: 1972571233493277257}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -384,7 +385,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &6873820345986198965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,10 +405,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   maxSpeed: 30
-  maxReverseSpeed: 12
-  acceleration: 20
+  maxReverseSpeed: 13
+  acceleration: 7
   turnStrength: 2.5
-  forwardResponse: 10
+  forwardResponse: 2
   brakeDecel: 25
   sideFriction: 10
   turnBySpeedFactor: 0.6
@@ -438,6 +439,30 @@ MonoBehaviour:
   turnTiltSpeed: 5
   driftTiltAngle: 7
   driftTiltSpeed: 10
+--- !u!114 &1972571233493277257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4012275448871970282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d13a491b648243c2b96ac30e3f21f668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallTags: []
+  wallLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  minSpeedKmhToBounce: 15
+  minIntoWallSpeed: 0.5
+  bounciness: 0.35
+  extraNormalSpeedChange: 2
+  maxNormalSpeedChange: 12
+  tangentDamping: 0.95
+  depenetrationDistance: 0.03
+  rb: {fileID: 1505841177870221726}
 --- !u!1 &4016338483958737589
 GameObject:
   m_ObjectHideFlags: 0
