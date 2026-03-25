@@ -25,10 +25,12 @@ namespace FSM.States
 
         public override void Update(float deltaTime)
         {
-            // if (_raceManager.RaceElapsedTime >= _raceManager.RaceDuration || _raceManager.HasRuleDrivenRaceFinished)
-            // {
-            //     Machine.ChangeState(RaceFlowState.Settlement);
-            // }
+            _raceManager.DisableFinishedRacersInput();
+
+            if (_raceManager.HasRuleDrivenRaceFinished)
+            {
+                Machine.ChangeState(RaceFlowState.Settlement);
+            }
         }
     }
 }

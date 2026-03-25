@@ -8,7 +8,6 @@ public class RacerProgress : MonoBehaviour
 
     [Header("Runtime (Read Only)")]
     [SerializeField] private int currentLap;
-    [SerializeField] private int score;
     [SerializeField] private bool isFinished;
     [SerializeField] private float finishRaceTime;
     [SerializeField] private int nextCheckpointIndex = 1;
@@ -17,7 +16,6 @@ public class RacerProgress : MonoBehaviour
 
     public string RacerId => string.IsNullOrWhiteSpace(racerId) ? gameObject.name : racerId;
     public int CurrentLap => currentLap;
-    public int Score => score;
     public bool IsFinished => isFinished;
     public float FinishRaceTime => finishRaceTime;
     public int NextCheckpointIndex => nextCheckpointIndex;
@@ -35,7 +33,6 @@ public class RacerProgress : MonoBehaviour
     public void ResetForRace(int firstCheckpointIndex)
     {
         currentLap = 0;
-        score = 0;
         isFinished = false;
         finishRaceTime = 0f;
         nextCheckpointIndex = firstCheckpointIndex;
@@ -54,10 +51,9 @@ public class RacerProgress : MonoBehaviour
         nextCheckpointIndex = checkpointIndex;
     }
 
-    public int AddLapAndScore(int addScore)
+    public int AddLap()
     {
         currentLap += 1;
-        score += addScore;
         return currentLap;
     }
 

@@ -9,7 +9,6 @@ public class RaceManager : Singleton<RaceManager>
     [Header("Race Flow Durations")]
     [SerializeField] private float preRaceDuration = 1f;
     [SerializeField] private float countdownDuration = 3f;
-    [SerializeField] private float raceDuration = 15f;
 
     [Header("Rule System")]
     [SerializeField] private RaceRuleSystem raceRuleSystem;
@@ -20,7 +19,6 @@ public class RaceManager : Singleton<RaceManager>
 
     public float PreRaceDuration => preRaceDuration;
     public float CountdownDuration => countdownDuration;
-    public float RaceDuration => raceDuration;
     public float StateElapsedTime => _stateElapsedTime;
     public float RaceElapsedTime => _raceElapsedTime;
     public bool HasRuleDrivenRaceFinished => raceRuleSystem != null && raceRuleSystem.AreAllRacersFinished;
@@ -95,6 +93,11 @@ public class RaceManager : Singleton<RaceManager>
     public void StopRuleSystem()
     {
         raceRuleSystem?.StopRace();
+    }
+
+    public void DisableFinishedRacersInput()
+    {
+        raceRuleSystem?.DisableFinishedRacersInput();
     }
 
     public bool TryProcessCheckpoint(CheckPointTrigger checkpoint, Collider other)

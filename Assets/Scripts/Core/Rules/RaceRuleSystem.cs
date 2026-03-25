@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FishCarRacing.Player;
 using UnityEngine;
 
 public class RaceRuleSystem : MonoBehaviour
 {
     [Header("Race Rules")]
     [SerializeField] private int targetLapCount = 3;
-    [SerializeField] private int scorePerLap = 100;
     [SerializeField] private float sameCheckpointCooldown = 0.2f;
 
     [Header("Finish Direction Check")]
@@ -25,6 +25,7 @@ public class RaceRuleSystem : MonoBehaviour
     public int TargetLapCount => targetLapCount;
     public bool RaceActive => raceActive;
     public bool AreAllRacersFinished => racers.Count > 0 && finishedRacerCount >= racers.Count;
+    public IReadOnlyList<RacerProgress> Racers => racers;
 
     public event Action<RacerProgress> RacerFinished;
     public event Action<RacerProgress, int> LapCompleted;
@@ -81,6 +82,23 @@ public class RaceRuleSystem : MonoBehaviour
         raceActive = false;
     }
 
+    public void DisableFinishedRacersInput()
+    {
+        foreach (var racer in racers)
+        {
+            if (racer == null || !racer.IsFinished)
+            {
+                continue;
+            }
+
+            CarController controller = racer.GetComponentInParent<CarController>();
+            if (controller != null && controller.CanInput)
+            {
+                controller.SetInputEnabled(false);
+            }
+        }
+    }
+
     public bool TryPassCheckpoint(CheckPointTrigger checkpoint, Collider triggerCollider, float raceElapsedTime)
     {
         if (!raceActive || checkpoint == null || triggerCollider == null)
@@ -128,7 +146,7 @@ public class RaceRuleSystem : MonoBehaviour
 
         if (checkpoint.IsFinishLine)
         {
-            int lap = racer.AddLapAndScore(scorePerLap);
+            int lap = racer.AddLap();
             LapCompleted?.Invoke(racer, lap);
 
             int next = GetFirstNonFinishCheckpointIndex();
