@@ -2830,6 +2830,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 165106643}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &165509128 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9181077076926172118, guid: 59b44e7b287efad49a0e38e4000341b7,
+    type: 3}
+  m_PrefabInstance: {fileID: 3112094918950905836}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a1c18c2afcc4aa42a42bfe0400b8ba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &172963969
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23587,6 +23599,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7933989230777913362, guid: 730a1f2161b7c0541bf5c7dd27ce7831,
+        type: 3}
+      propertyPath: localRacer
+      value: 
+      objectReference: {fileID: 1420940344}
+    - target: {fileID: 7933989230777913362, guid: 730a1f2161b7c0541bf5c7dd27ce7831,
+        type: 3}
+      propertyPath: raceRuleSystem
+      value: 
+      objectReference: {fileID: 165509128}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -43587,6 +43609,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: RaceManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 9181077076926172118, guid: 59b44e7b287efad49a0e38e4000341b7,
+        type: 3}
+      propertyPath: targetLapCount
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 9181077076926172118, guid: 59b44e7b287efad49a0e38e4000341b7,
         type: 3}
