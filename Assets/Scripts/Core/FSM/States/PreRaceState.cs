@@ -17,6 +17,7 @@ namespace FSM.States
         public override void Enter()
         {
             _raceManager.ResetStateTimer();
+            _raceManager.PrepareRuleSystem();
             _raceManager.SetAllPlayerInputEnabled(false);
             Debug.Log("[FSM] Enter PreRace: prepare racers and lock input.");
         }

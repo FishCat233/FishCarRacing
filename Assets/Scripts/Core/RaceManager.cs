@@ -11,6 +11,9 @@ public class RaceManager : Singleton<RaceManager>
     [SerializeField] private float countdownDuration = 3f;
     [SerializeField] private float raceDuration = 15f;
 
+    [Header("Rule System")]
+    [SerializeField] private RaceRuleSystem raceRuleSystem;
+
     private StateMachine<RaceFlowState> _stateMachine;
     private float _stateElapsedTime;
     private float _raceElapsedTime;
@@ -20,9 +23,15 @@ public class RaceManager : Singleton<RaceManager>
     public float RaceDuration => raceDuration;
     public float StateElapsedTime => _stateElapsedTime;
     public float RaceElapsedTime => _raceElapsedTime;
+    public bool HasRuleDrivenRaceFinished => raceRuleSystem != null && raceRuleSystem.AreAllRacersFinished;
 
     private void Start()
     {
+        if (raceRuleSystem == null)
+        {
+            raceRuleSystem = FindFirstObjectByType<RaceRuleSystem>();
+        }
+
         InitializeStateMachine();
     }
 
@@ -71,6 +80,31 @@ public class RaceManager : Singleton<RaceManager>
         }
 
         return _stateMachine.ChangeState(targetState);
+    }
+
+    public void PrepareRuleSystem()
+    {
+        raceRuleSystem?.PrepareRace();
+    }
+
+    public void StartRuleSystem()
+    {
+        raceRuleSystem?.StartRace();
+    }
+
+    public void StopRuleSystem()
+    {
+        raceRuleSystem?.StopRace();
+    }
+
+    public bool TryProcessCheckpoint(CheckPointTrigger checkpoint, Collider other)
+    {
+        if (raceRuleSystem == null)
+        {
+            return false;
+        }
+
+        return raceRuleSystem.TryPassCheckpoint(checkpoint, other, _raceElapsedTime);
     }
 
     public void SetAllPlayerInputEnabled(bool enabled)
