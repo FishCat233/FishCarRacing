@@ -17,6 +17,7 @@ namespace FSM.States
         public override void Enter()
         {
             _raceManager.ResetStateTimer();
+            _raceManager.SetAllPlayerInputEnabled(false);
             Debug.Log("[FSM] Enter Countdown: 3-2-1-Go.");
         }
 

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5380538365051876104}
   - component: {fileID: 8551197199684583121}
   - component: {fileID: 1524361892397330895}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheels_BR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92,7 +92,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3129278914183298216}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: VisualCar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,7 +126,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7777826267040580850}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GroundCheckPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -158,7 +158,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1556641573739773816}
   - component: {fileID: 8127243218248243357}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheel_BL_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -228,7 +228,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6137848058998151479}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1270213501457536341}
   - component: {fileID: 2310180176639601821}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheel_BR_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -333,10 +333,12 @@ GameObject:
   - component: {fileID: 5581716486091483590}
   - component: {fileID: 1505841177870221726}
   - component: {fileID: 6873820345986198965}
-  - component: {fileID: 1972571233493277257}
-  m_Layer: 0
+  - component: {fileID: 6838229456694366516}
+  - component: {fileID: 7208574861308570430}
+  - component: {fileID: 6001280370777808096}
+  m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -439,7 +441,19 @@ MonoBehaviour:
   turnTiltSpeed: 5
   driftTiltAngle: 7
   driftTiltSpeed: 10
---- !u!114 &1972571233493277257
+--- !u!114 &6838229456694366516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4012275448871970282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27fd1f78343d4501906e3051b7539735, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7208574861308570430
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -463,6 +477,26 @@ MonoBehaviour:
   tangentDamping: 0.95
   depenetrationDistance: 0.03
   rb: {fileID: 1505841177870221726}
+--- !u!114 &6001280370777808096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4012275448871970282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e434dbce91a9c741a96046e2fabbd36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  racerId: Player
+  currentLap: 0
+  score: 0
+  isFinished: 0
+  finishRaceTime: 0
+  nextCheckpointIndex: 1
+  lastCheckpointIndex: -1
+  lastCheckpointTriggerTime: -999
 --- !u!1 &4016338483958737589
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,7 +507,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5066635610657574413}
   - component: {fileID: 2447751505586914824}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheel_FL_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -545,7 +579,7 @@ GameObject:
   - component: {fileID: 1136939957056017059}
   - component: {fileID: 1348098887705782213}
   - component: {fileID: 971266454965582391}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheels_FL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -626,7 +660,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6609536272283442011}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheels
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -663,7 +697,7 @@ GameObject:
   - component: {fileID: 5325001949331076651}
   - component: {fileID: 1504603949844245964}
   - component: {fileID: 7974657014541142749}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheels_FR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -745,7 +779,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6077513126090072329}
   - component: {fileID: 1038591411489188320}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheel_FR_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -819,7 +853,7 @@ GameObject:
   - component: {fileID: 1150136714729520876}
   - component: {fileID: 734679206656130447}
   - component: {fileID: 3425659595392813379}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CarShape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1149,7 +1183,7 @@ GameObject:
   - component: {fileID: 8605112038847567133}
   - component: {fileID: 5738486129556919246}
   - component: {fileID: 8803666286836973005}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CarBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1275,7 +1309,7 @@ GameObject:
   - component: {fileID: 8016365649742146951}
   - component: {fileID: 25802712678089312}
   - component: {fileID: 2492137022096941738}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wheels_BL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1356,7 +1390,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2730772627637145253}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WheelCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

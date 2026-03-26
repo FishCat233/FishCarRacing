@@ -17,6 +17,8 @@ namespace FSM.States
         public override void Enter()
         {
             _raceManager.ResetStateTimer();
+            _raceManager.StopRuleSystem();
+            _raceManager.SetAllPlayerInputEnabled(false);
             Debug.Log($"[FSM] Enter Settlement: final race time = {_raceManager.RaceElapsedTime:F2}s");
         }
     }
