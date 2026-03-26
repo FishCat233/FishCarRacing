@@ -21,6 +21,36 @@ public class RaceRuleSystem : MonoBehaviour
     public int TargetLapCount => targetLapCount;
     public bool RaceActive => raceActive;
     public bool AreAllRacersFinished => racers.Count > 0 && finishedRacerCount >= racers.Count;
+    public bool AreAllPlayerRacersFinished
+    {
+        get
+        {
+            int playerRacerCount = 0;
+            int finishedPlayerRacerCount = 0;
+
+            foreach (var racer in racers)
+            {
+                if (racer == null)
+                {
+                    continue;
+                }
+
+                CarController controller = racer.GetComponentInParent<CarController>();
+                if (controller == null)
+                {
+                    continue;
+                }
+
+                playerRacerCount += 1;
+                if (racer.IsFinished)
+                {
+                    finishedPlayerRacerCount += 1;
+                }
+            }
+
+            return playerRacerCount > 0 && finishedPlayerRacerCount >= playerRacerCount;
+        }
+    }
     public IReadOnlyList<RacerProgress> Racers => racers;
 
     public event Action<RacerProgress> RacerFinished;
@@ -76,23 +106,6 @@ public class RaceRuleSystem : MonoBehaviour
     public void StopRace()
     {
         raceActive = false;
-    }
-
-    public void DisableFinishedRacersInput()
-    {
-        foreach (var racer in racers)
-        {
-            if (racer == null || !racer.IsFinished)
-            {
-                continue;
-            }
-
-            CarController controller = racer.GetComponentInParent<CarController>();
-            if (controller != null && controller.CanInput)
-            {
-                controller.SetInputEnabled(false);
-            }
-        }
     }
 
     public bool TryPassCheckpoint(CheckPointTrigger checkpoint, Collider triggerCollider, float raceElapsedTime)

@@ -1,6 +1,7 @@
 using FSM.Core;
 using FSM.States;
 using FishCarRacing.Player;
+using System.Collections.Generic;
 using Tools;
 using UnityEngine;
 
@@ -16,12 +17,13 @@ public class RaceManager : Singleton<RaceManager>
     private StateMachine<RaceFlowState> _stateMachine;
     private float _stateElapsedTime;
     private float _raceElapsedTime;
+    private readonly HashSet<int> _inputDisabledRacerIds = new HashSet<int>();
 
     public float PreRaceDuration => preRaceDuration;
     public float CountdownDuration => countdownDuration;
     public float StateElapsedTime => _stateElapsedTime;
     public float RaceElapsedTime => _raceElapsedTime;
-    public bool HasRuleDrivenRaceFinished => raceRuleSystem != null && raceRuleSystem.AreAllRacersFinished;
+    public bool HasAllPlayersFinished => raceRuleSystem != null && raceRuleSystem.AreAllPlayerRacersFinished;
 
     private void Start()
     {
@@ -30,7 +32,14 @@ public class RaceManager : Singleton<RaceManager>
             raceRuleSystem = FindFirstObjectByType<RaceRuleSystem>();
         }
 
+        SubscribeRuleSystemEvents();
+
         InitializeStateMachine();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeRuleSystemEvents();
     }
 
     private void Update()
@@ -82,6 +91,7 @@ public class RaceManager : Singleton<RaceManager>
 
     public void PrepareRuleSystem()
     {
+        _inputDisabledRacerIds.Clear();
         raceRuleSystem?.PrepareRace();
     }
 
@@ -93,11 +103,6 @@ public class RaceManager : Singleton<RaceManager>
     public void StopRuleSystem()
     {
         raceRuleSystem?.StopRace();
-    }
-
-    public void DisableFinishedRacersInput()
-    {
-        raceRuleSystem?.DisableFinishedRacersInput();
     }
 
     public bool TryProcessCheckpoint(CheckPointTrigger checkpoint, Collider other)
@@ -116,6 +121,47 @@ public class RaceManager : Singleton<RaceManager>
         foreach (var player in players)
         {
             player.SetInputEnabled(enabled);
+        }
+    }
+
+    private void SubscribeRuleSystemEvents()
+    {
+        if (raceRuleSystem == null)
+        {
+            return;
+        }
+
+        raceRuleSystem.RacerFinished -= OnRacerFinished;
+        raceRuleSystem.RacerFinished += OnRacerFinished;
+    }
+
+    private void UnsubscribeRuleSystemEvents()
+    {
+        if (raceRuleSystem == null)
+        {
+            return;
+        }
+
+        raceRuleSystem.RacerFinished -= OnRacerFinished;
+    }
+
+    private void OnRacerFinished(RacerProgress racer)
+    {
+        if (racer == null)
+        {
+            return;
+        }
+
+        int racerId = racer.GetInstanceID();
+        if (!_inputDisabledRacerIds.Add(racerId))
+        {
+            return;
+        }
+
+        CarController controller = racer.GetComponentInParent<CarController>();
+        if (controller != null && controller.CanInput)
+        {
+            controller.SetInputEnabled(false);
         }
     }
 
