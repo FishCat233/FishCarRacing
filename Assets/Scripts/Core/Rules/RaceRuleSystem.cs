@@ -11,7 +11,6 @@ public class RaceRuleSystem : MonoBehaviour
     [SerializeField] private float sameCheckpointCooldown = 0.2f;
 
     [Header("Finish Direction Check")]
-    [SerializeField] private bool requireForwardDirectionAtFinish = true;
     [SerializeField] [Range(-1f, 1f)] private float finishDirectionDotThreshold = 0.2f;
 
     [Header("References")]
@@ -132,16 +131,6 @@ public class RaceRuleSystem : MonoBehaviour
         {
             return false;
         }
-
-        if (checkpoint.IsFinishLine && requireForwardDirectionAtFinish)
-        {
-            float dot = Vector3.Dot(triggerCollider.transform.forward, checkpoint.transform.forward);
-            if (dot < finishDirectionDotThreshold)
-            {
-                return false;
-            }
-        }
-
         racer.MarkCheckpointPassed(checkpoint.CheckpointIndex, Time.time);
 
         if (checkpoint.IsFinishLine)
