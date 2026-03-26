@@ -25,7 +25,7 @@ namespace FSM.States
 
         public override void Update(float deltaTime)
         {
-            if (_raceManager.HasAllPlayersFinished)
+            if (_raceManager.HasAllRacersFinished)
             {
                 Machine.ChangeState(RaceFlowState.Settlement);
             }
