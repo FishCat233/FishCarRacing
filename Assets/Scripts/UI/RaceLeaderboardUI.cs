@@ -28,19 +28,11 @@ public class RaceLeaderboardUI : MonoBehaviour
         {
             localRacer = FindFirstObjectByType<RacerProgress>();
         }
-
-        RefreshUI();
     }
 
-    private void OnEnable()
+    private void Update()
     {
-        SubscribeEvents();
         RefreshUI();
-    }
-
-    private void OnDisable()
-    {
-        UnsubscribeEvents();
     }
 
     private void RefreshUI()
@@ -142,45 +134,4 @@ public class RaceLeaderboardUI : MonoBehaviour
         return b.LastCheckpointIndex.CompareTo(a.LastCheckpointIndex);
     }
 
-    private void SubscribeEvents()
-    {
-        if (raceRuleSystem == null)
-        {
-            return;
-        }
-
-        raceRuleSystem.RacerProgressChanged -= OnRacerProgressChanged;
-        raceRuleSystem.RacerProgressChanged += OnRacerProgressChanged;
-        raceRuleSystem.LapCompleted -= OnLapCompleted;
-        raceRuleSystem.LapCompleted += OnLapCompleted;
-        raceRuleSystem.RacerFinished -= OnRacerFinished;
-        raceRuleSystem.RacerFinished += OnRacerFinished;
-    }
-
-    private void UnsubscribeEvents()
-    {
-        if (raceRuleSystem == null)
-        {
-            return;
-        }
-
-        raceRuleSystem.RacerProgressChanged -= OnRacerProgressChanged;
-        raceRuleSystem.LapCompleted -= OnLapCompleted;
-        raceRuleSystem.RacerFinished -= OnRacerFinished;
-    }
-
-    private void OnRacerProgressChanged(RacerProgress racer)
-    {
-        RefreshUI();
-    }
-
-    private void OnLapCompleted(RacerProgress racer, int lap)
-    {
-        RefreshUI();
-    }
-
-    private void OnRacerFinished(RacerProgress racer)
-    {
-        RefreshUI();
-    }
 }
