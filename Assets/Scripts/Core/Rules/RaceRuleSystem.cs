@@ -55,6 +55,7 @@ public class RaceRuleSystem : MonoBehaviour
 
     public event Action<RacerProgress> RacerFinished;
     public event Action<RacerProgress, int> LapCompleted;
+    public event Action<RacerProgress> RacerProgressChanged;
 
     private void Awake()
     {
@@ -158,10 +159,13 @@ public class RaceRuleSystem : MonoBehaviour
                 RacerFinished?.Invoke(racer);
             }
 
+            RacerProgressChanged?.Invoke(racer);
+
             return true;
         }
 
         racer.SetNextCheckpointIndex(GetNextCheckpointIndex(checkpoint.CheckpointIndex));
+        RacerProgressChanged?.Invoke(racer);
         return true;
     }
 

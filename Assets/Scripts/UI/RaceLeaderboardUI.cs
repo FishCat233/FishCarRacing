@@ -1,4 +1,4 @@
-using System.Linq;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -15,6 +15,8 @@ public class RaceLeaderboardUI : MonoBehaviour
     [Header("Display")]
     [SerializeField] private int maxRows = 8;
 
+    private readonly List<RacerProgress> _sortedRacers = new List<RacerProgress>(16);
+
     private void Awake()
     {
         if (raceRuleSystem == null)
@@ -26,9 +28,22 @@ public class RaceLeaderboardUI : MonoBehaviour
         {
             localRacer = FindFirstObjectByType<RacerProgress>();
         }
+
+        RefreshUI();
     }
 
-    private void Update()
+    private void OnEnable()
+    {
+        SubscribeEvents();
+        RefreshUI();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
+    private void RefreshUI()
     {
         if (raceRuleSystem == null)
         {
@@ -48,25 +63,31 @@ public class RaceLeaderboardUI : MonoBehaviour
             return;
         }
 
-        var sorted = raceRuleSystem.Racers
-            .Where(r => r != null)
-            .OrderBy(r => r.IsFinished ? 0 : 1)
-            .ThenBy(r => r.IsFinished ? r.FinishRaceTime : float.MaxValue)
-            .ThenByDescending(r => r.CurrentLap)
-            .ThenByDescending(r => r.LastCheckpointIndex)
-            .Take(Mathf.Max(1, maxRows))
-            .ToList();
+        _sortedRacers.Clear();
+        var racers = raceRuleSystem.Racers;
+        for (int i = 0; i < racers.Count; i++)
+        {
+            RacerProgress racer = racers[i];
+            if (racer != null)
+            {
+                _sortedRacers.Add(racer);
+            }
+        }
 
-        if (sorted.Count == 0)
+        _sortedRacers.Sort(CompareRacers);
+
+        if (_sortedRacers.Count == 0)
         {
             leaderboardText.text = "Leaderboard\nNo racers";
             return;
         }
 
         string text = "Leaderboard";
-        for (int i = 0; i < sorted.Count; i++)
+
+        int rowCount = Mathf.Min(Mathf.Max(1, maxRows), _sortedRacers.Count);
+        for (int i = 0; i < rowCount; i++)
         {
-            RacerProgress racer = sorted[i];
+            RacerProgress racer = _sortedRacers[i];
             string finishTag = racer.IsFinished ? " [FIN]" : string.Empty;
             text += $"\n{i + 1}. {racer.RacerId}  Lap {racer.CurrentLap}/{raceRuleSystem.TargetLapCount}{finishTag}";
         }
@@ -89,5 +110,77 @@ public class RaceLeaderboardUI : MonoBehaviour
 
         string finishText = localRacer.IsFinished ? "  FINISHED" : string.Empty;
         lapText.text = $"Lap: {localRacer.CurrentLap}/{raceRuleSystem.TargetLapCount}{finishText}";
+    }
+
+    private static int CompareRacers(RacerProgress a, RacerProgress b)
+    {
+        if (a == b)
+        {
+            return 0;
+        }
+
+        if (a.IsFinished != b.IsFinished)
+        {
+            return a.IsFinished ? -1 : 1;
+        }
+
+        if (a.IsFinished && b.IsFinished)
+        {
+            int finishCompare = a.FinishRaceTime.CompareTo(b.FinishRaceTime);
+            if (finishCompare != 0)
+            {
+                return finishCompare;
+            }
+        }
+
+        int lapCompare = b.CurrentLap.CompareTo(a.CurrentLap);
+        if (lapCompare != 0)
+        {
+            return lapCompare;
+        }
+
+        return b.LastCheckpointIndex.CompareTo(a.LastCheckpointIndex);
+    }
+
+    private void SubscribeEvents()
+    {
+        if (raceRuleSystem == null)
+        {
+            return;
+        }
+
+        raceRuleSystem.RacerProgressChanged -= OnRacerProgressChanged;
+        raceRuleSystem.RacerProgressChanged += OnRacerProgressChanged;
+        raceRuleSystem.LapCompleted -= OnLapCompleted;
+        raceRuleSystem.LapCompleted += OnLapCompleted;
+        raceRuleSystem.RacerFinished -= OnRacerFinished;
+        raceRuleSystem.RacerFinished += OnRacerFinished;
+    }
+
+    private void UnsubscribeEvents()
+    {
+        if (raceRuleSystem == null)
+        {
+            return;
+        }
+
+        raceRuleSystem.RacerProgressChanged -= OnRacerProgressChanged;
+        raceRuleSystem.LapCompleted -= OnLapCompleted;
+        raceRuleSystem.RacerFinished -= OnRacerFinished;
+    }
+
+    private void OnRacerProgressChanged(RacerProgress racer)
+    {
+        RefreshUI();
+    }
+
+    private void OnLapCompleted(RacerProgress racer, int lap)
+    {
+        RefreshUI();
+    }
+
+    private void OnRacerFinished(RacerProgress racer)
+    {
+        RefreshUI();
     }
 }
