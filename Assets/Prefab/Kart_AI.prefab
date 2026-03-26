@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3554698202669205286}
   - component: {fileID: 3554698202669205281}
   - component: {fileID: 4606695108450228010}
+  - component: {fileID: 3364302383391166298}
   m_Layer: 0
   m_Name: Kart_AI
   m_TagString: Untagged
@@ -29,8 +30,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2.03, y: 2.03, z: 2.03}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1999485424329786373}
   m_Father: {fileID: 0}
@@ -57,8 +58,8 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -96,7 +97,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cd4c0d6443d30a428affd0201865744, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Waypoints: []
+  waypoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  reachDistance: 1
+  rotateSpeed: 20
+  speedRange: {x: 8.5, y: 21.54}
+  agentAcceleration: 30
+  agentAngularSpeed: 568.4
+  stoppingDistance: 0.2
+  stopOnFinish: 1
+  finishSlideTime: 0.8
+  finishSlideDamping: 4
+  minSlideSpeed: 2
+--- !u!114 &3364302383391166298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085128146098864539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e434dbce91a9c741a96046e2fabbd36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  racerId: Kart_AI
+  currentLap: 0
+  isFinished: 0
+  finishRaceTime: 0
+  nextCheckpointIndex: 1
+  lastCheckpointIndex: -1
+  lastCheckpointTriggerTime: -999
 --- !u!1 &3306979951846716950
 GameObject:
   m_ObjectHideFlags: 0

@@ -23,7 +23,7 @@ public class RaceManager : Singleton<RaceManager>
     public float CountdownDuration => countdownDuration;
     public float StateElapsedTime => _stateElapsedTime;
     public float RaceElapsedTime => _raceElapsedTime;
-    public bool HasAllPlayersFinished => raceRuleSystem != null && raceRuleSystem.AreAllPlayerRacersFinished;
+    public bool HasAllRacersFinished => raceRuleSystem != null && raceRuleSystem.AreAllRacersFinished;
 
     private void Start()
     {
