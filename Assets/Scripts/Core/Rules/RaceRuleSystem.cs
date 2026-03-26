@@ -10,9 +10,6 @@ public class RaceRuleSystem : MonoBehaviour
     [SerializeField] private int targetLapCount = 3;
     [SerializeField] private float sameCheckpointCooldown = 0.2f;
 
-    [Header("Finish Direction Check")]
-    [SerializeField] [Range(-1f, 1f)] private float finishDirectionDotThreshold = 0.2f;
-
     [Header("References")]
     [SerializeField] private List<CheckPointTrigger> checkpoints = new List<CheckPointTrigger>();
     [SerializeField] private List<RacerProgress> racers = new List<RacerProgress>();

@@ -126,6 +126,12 @@ namespace FishCarRacing.Player
 
         private void Update()
         {
+            if (carInput == null)
+            {
+                carInput = GetComponent<CarInput>();
+                if (carInput == null) return;
+            }
+
             carInput.HandleInput();
 
             if (!carInput.CanInput)
